@@ -41,8 +41,8 @@ TitleLabel.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
 TitleLabel.Parent = MenuFrame
 
 -- Ajout de l'image du logo
-LogoImage.Size = UDim2.new(1, 0, 1, 0) -- Ajuster la taille de l'image
-LogoImage.Position = UDim2.new(0, 0, 0, 0) -- Positionner sous le titre
+LogoImage.Size = UDim2.new(1, 0, 0.2, 0) -- Ajuster la taille de l'image
+LogoImage.Position = UDim2.new(0, 0, 0.1, 0) -- Positionner sous le titre
 LogoImage.Image = "rbxassetid://your_image_id_here" -- Remplacer par l'ID de l'image
 LogoImage.BackgroundTransparency = 1
 LogoImage.Parent = MenuFrame
@@ -96,33 +96,50 @@ StopButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 StopButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 StopButton.Parent = StopFrame
 
--- Table de chansons classiques (versions longues) et ajout de nouvelles chansons
+-- Table de chansons (ajoutez vos morceaux ici)
 local songs = {
-    ["Moonlight Sonata (1st movement)"] = "q t r e w q r e q w t y q r e w q r e q w t y q r e w " .. string.rep(" q t r e w q r e q w t y q r e w", 5),
-    ["Moonlight Sonata (3rd movement)"] = "q w e r t y u t r e w q w e r t y u t r e w " .. string.rep(" q w e r t y u t r e w", 5),
-    ["Chopin Nocturne Op.9 No.2"] = "a s d f g h j k l ; l k j h a s d f g h j k l ; " .. string.rep(" a s d f g h j k l ; l k j h", 5),
-    ["Für Elise"] = "e d e d e b d c a c e a b e d e d e e d e d e b d c a c e a b e d e d e e d e d" .. string.rep(" e d e d e b d c a c e a b e d e d e", 5),
-    ["Turkish March"] = "j l k j l k j l k j k j l j k l k j k j l k j l k j k j l j l k j k j l j l k j" .. string.rep(" j l k j l k j l k j k j l j l k j", 5),
-    ["Chopin Étude Op.10 No.3"] = "r t y u i o p o i u y t r e r t y u i o p o i u" .. string.rep(" r t y u i o p o i u y t r e", 5),
-    ["Chopin Prélude Op.28 No.4"] = "a s d f g h j k l ; ' ; l k j a s d f g h j k l ; " .. string.rep(" a s d f g h j k l ; ' ; l k j", 5),
-    ["Beethoven 5th Symphony"] = "q q q r e r w w w r e r q q q r e r w w w r e r" .. string.rep(" q q q r e r w w w r e r", 5),
-    ["Lilium"] = "a a s d f g g g f e e d d d e d d d" .. string.rep(" a a s d f g g g f e e d d d e d d d", 5),
-    ["Tokyo Ghoul Theme"] = "q w e r t y u i o p q w e r t y u i o p" .. string.rep(" q w e r t y u i o p", 5),
-    ["Demon Slayer OP"] = "q w q e r t y u i o p q w q e r t y u i o p" .. string.rep(" q w q e r t y u i o p", 5),
+    ["Moonlight Sonata (1st movement)"] = "q t r e w q r e q w t y q r e w q r e q w t y q t r e w q r e q w t y q r e w",
+    ["Moonlight Sonata (3rd movement)"] = "q w e r t y u t r e w q w e r t y u t r e w q w e r t y u t r e w q w e r",
+    ["Chopin Nocturne Op.9 No.2"] = "a s d f g h j k l ; l k j h a s d f g h j k l ;",
+    ["Für Elise"] = "e d e d e b d c a c e a b e d e d e e d e d e b d c a c e a b e d e d e",
+    ["Turkish March"] = "j l k j l k j l k j k j l j k l k j k j l k j l k j k j l",
+    ["The World (Death Note)"] = "q w e r t y u i o p a s d f g h j k l",
+    ["Unravel (Tokyo Ghoul)"] = "a s d f g h j k l ; q w e r t y u i o p",
+    ["Lilium"] = "s d f g h j k l ; l k j h g f d s a",
+    ["Gurenge (Demon Slayer)"] = "q w e r t y u i o p a s d f g h j k l",
+    ["Kamado Tanjiro no Uta"] = "e r t y u i o p a s d f g h j k l",
+    ["Tanjiro's Theme"] = "a s d f g h j k l ; l k j h g f d s a",
+    ["Akaza's Theme"] = "q w e r t y u i o p a s d f g h j k l"
+    -- Ajoutez d'autres chansons ici si nécessaire
 }
 
--- Fonction pour allonger les morceaux (1 répétition pour 1 minute au total)
-local function extendSong(songText, repetitions)
-    local extendedSong = ""
-    for i = 1, repetitions do
-        extendedSong = extendedSong .. songText .. " "
+-- Fonction pour jouer une chanson
+local function playSong(songText)
+    stopPlaying = false
+    isPlaying = true
+    for i = 1, #songText do
+        if stopPlaying then break end
+        local note = songText:sub(i, i)
+        if note ~= " " then -- Ignore les espaces
+            pressKey(note)
+        end
+        wait(delayBetweenNotes)
     end
-    return extendedSong
+    isPlaying = false
 end
 
--- Étend chaque morceau pour qu'il soit plus long
-for songName, notes in pairs(songs) do
-    songs[songName] = extendSong(notes, 5) -- Répéter chaque chanson 5 fois pour l'allonger
+-- Fonction pour appuyer sur une seule touche
+local function pressKey(key)
+    local virtualKeyCode = Enum.KeyCode[key:upper()]
+    if virtualKeyCode then
+        game:GetService("VirtualInputManager"):SendKeyEvent(true, virtualKeyCode, false, game)
+        wait(delayBetweenNotes)
+        game:GetService("VirtualInputManager"):SendKeyEvent(false, virtualKeyCode, false, game)
+    else
+        warn("Invalid key: " .. key)
+    end
 end
 
--- Fonction pour appuyer
+-- Génère des boutons pour chaque chanson
+for songName, _ in pairs(songs) do
+    local SongButton = Instance.new("TextButton
